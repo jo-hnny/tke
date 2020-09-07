@@ -74,7 +74,7 @@ export async function fetchPrometheuses() {
   });
   let params: RequestParams = {
     method: Method.get,
-    url
+    url: '/apis/monitor.tkestack.io/v1/prometheuses'
   };
   let records = [];
   try {
