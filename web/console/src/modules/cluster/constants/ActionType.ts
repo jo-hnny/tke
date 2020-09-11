@@ -348,3 +348,6 @@ export const GBG_SelectGameApp = 'GBG_SelectGameApp';
 export const GBG_ShowGameAppDialog = 'GBG_ShowGameAppDialog';
 export const ClearLbcfEdit = 'ClearGBGEdit';
 /** ============================== end 创建 Lbcf创建 相关 =============================== */
+
+export const ModifyPrometheusStatus = 'Modify_PrometheusStatus';
+export const Plug_Clear = 'Plug_Clear';

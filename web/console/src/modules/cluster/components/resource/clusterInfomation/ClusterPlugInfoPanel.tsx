@@ -10,9 +10,25 @@ export const ClusterPlugInfoPanel = () => {
     { key: 'action', header: '操作' }
   ];
 
+  const records = [
+    {
+      plug: '监控告警',
+      des: '监控告警，prometheus',
+      status: 'running',
+      action: '开启'
+    },
+
+    {
+      plug: '日志采集',
+      des: '日志采集，loagent',
+      status: 'running',
+      action: '开启'
+    }
+  ];
+
   return (
     <FormPanel title="组件信息">
-      <Table columns={columns} />
+      <Table columns={columns} records={records} recordKey="plug" />
     </FormPanel>
   );
 };
