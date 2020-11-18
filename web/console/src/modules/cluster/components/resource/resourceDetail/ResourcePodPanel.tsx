@@ -22,6 +22,7 @@ import { router } from '../../../router';
 import { RootProps } from '../../ClusterApp';
 import { IsInNodeManageDetail } from './ResourceDetail';
 import { PodTabel } from './ResourcePodTable';
+import { PodItem } from '@src/webApi/pods';
 
 /** 获取containerId，去掉前缀 docker:// */
 export function reduceContainerId(containerStatus: any[], containerName: string) {
@@ -74,6 +75,7 @@ interface ResourcePodPanelState {
   /** 当前需要展开的pod列表 */
   // expanded?: string[];
   expandedKeys?: string[];
+  pods: PodItem[];
 }
 
 const mapDispatchToProps = dispatch =>
@@ -85,9 +87,14 @@ export class ResourcePodPanel extends React.Component<RootProps, ResourcePodPane
     super(props, context);
     this.state = {
       // expanded: [],
-      expandedKeys: []
+      expandedKeys: [],
+      pods: []
     };
   }
+
+  setPods = pods => {
+    this.setState({ pods });
+  };
 
   componentDidMount() {
     let { actions, route, subRoot } = this.props,
@@ -145,9 +152,7 @@ export class ResourcePodPanel extends React.Component<RootProps, ResourcePodPane
       selectable({
         value: podSelection.map(item => item.id as string),
         onChange: keys => {
-          actions.resourceDetail.pod.podSelect(
-            podList.data.records.filter(item => keys.indexOf(item.id as string) !== -1)
-          );
+          actions.resourceDetail.pod.podSelect(this.state.pods.filter(({ id }) => keys.includes(id as string)) as any);
         }
       })
     ];
@@ -164,7 +169,7 @@ export class ResourcePodPanel extends React.Component<RootProps, ResourcePodPane
                   containers={x.spec.containers}
                   containerStatus={x.status.containerStatuses}
                   podId={x.id + ''}
-                  podList={podList.data.records}
+                  podList={this.state.pods}
                   route={route}
                   isInNodeManage={isInNodeManage}
                 />
@@ -193,9 +198,11 @@ export class ResourcePodPanel extends React.Component<RootProps, ResourcePodPane
       <PodTabel
         columns={execColumnWidth(columns)}
         namespace={route.queries['np']}
-        deployments={route.queries['resourceIns']}
+        k8sApp={resourceDetailState?.resourceDetailInfo?.selection?.metadata?.labels?.['k8s-app']}
         clusterName={route.queries['clusterId']}
         addons={addons}
+        setPods={this.setPods}
+        {...this.props}
       />
     );
   }

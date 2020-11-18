@@ -1,6 +1,8 @@
 import Request from './request';
+import { v4 as uuidv4 } from 'uuid';
 
 export interface PodItem {
+  id: string;
   metadata: {
     creationTimestamp: string;
     generateName: string;
@@ -95,33 +97,39 @@ export interface FetchPodsResponse {
   metadata: {
     continue?: string;
   };
-  remaingingItemCount?: number;
 }
 
 export interface FetchPodsProps {
   limit: number;
   continueStr: string;
-  fillters: Record<string, string>;
+  fillters?: Record<string, string>;
 }
 
 export const getDeploymentsPods = ({
   namespace,
-  deployments,
+  k8sApp,
   clusterName
 }: {
   namespace: string;
-  deployments: string;
   clusterName: string;
-}) => async ({ limit, continueStr, fillters }: FetchPodsProps): Promise<FetchPodsResponse> => {
-  return Request.get(`/apps/v1/namespaces/${namespace}/deployments/${deployments}/pods`, {
+  k8sApp: string;
+}) => async ({ limit, continueStr, fillters = {} }: FetchPodsProps): Promise<FetchPodsResponse> => {
+  const { items, metadata } = await Request.get<any, any>(`/api/v1/namespaces/${namespace}/pods`, {
     params: {
       ...fillters,
 
       limit,
-      continue: continueStr
+      continue: continueStr,
+      labelSelector: `k8s-app=${k8sApp}`,
+      fieldSelector: ``
     },
     headers: {
       'X-TKE-ClusterName': clusterName
     }
   });
+
+  return {
+    items: items.map(pod => ({ ...pod, id: uuidv4() })),
+    metadata
+  };
 };

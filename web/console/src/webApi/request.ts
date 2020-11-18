@@ -3,7 +3,6 @@ import Axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 
 const instance = Axios.create({
-  baseURL: '/apis',
   timeout: 3000
 });
 

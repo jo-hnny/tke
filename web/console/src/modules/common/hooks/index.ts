@@ -1,1 +1,1 @@
-export { usePods } from './pods';
+export { usePods, UsePodsProps } from './pods';
