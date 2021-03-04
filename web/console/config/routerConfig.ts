@@ -35,6 +35,10 @@ const clusterSubRouterConfig = [
       {
         name: t('节点'),
         path: 'node'
+      },
+      {
+        name: 'Master&Etcd',
+        path: 'master-etcd'
       }
     ]
   },

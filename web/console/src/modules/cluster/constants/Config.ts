@@ -19,7 +19,8 @@ export const FFReduxActionName = {
 /** 集群的类型 */
 export const ClusterTypeMap = {
   imported: '导入集群',
-  baremetal: '独立集群'
+  baremetal: '独立集群',
+  registered: '注册集群'
 };
 /** ========================= end 集群的相关配置 ======================== */
 
