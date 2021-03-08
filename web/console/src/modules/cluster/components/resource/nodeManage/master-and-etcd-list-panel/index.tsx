@@ -4,8 +4,10 @@ import { useSetRecoilState, useRecoilValueLoadable } from 'recoil';
 import { masterAndEtcdListState, clusterNameState } from '../../../../recoil/atom/node';
 import { ColumnType } from 'antd/lib/table';
 import { IMasterAndEtcd } from '@src/modules/cluster/recoil/models/node';
+import { Router } from '@helper';
+import { router } from '@src/modules/cluster/router';
 
-export const MasterAndEtcd: React.FC<{ clusterName: string }> = ({ clusterName }) => {
+export const MasterAndEtcdListPanel: React.FC<{ clusterName: string }> = ({ clusterName }) => {
   const setClusterName = useSetRecoilState(clusterNameState);
   setClusterName(clusterName);
   const masterAndEtcdList = useRecoilValueLoadable(masterAndEtcdListState);
@@ -69,7 +71,14 @@ export const MasterAndEtcd: React.FC<{ clusterName: string }> = ({ clusterName }
     <React.Fragment>
       <Space>
         <Button type="primary">监控</Button>
-        <Button type="primary">添加节点</Button>
+        <Button
+          type="primary"
+          onClick={() =>
+            router.navigate({ sub: 'sub', mode: 'add-master', type: 'nodeManange', resourceName: 'master-etcd' })
+          }
+        >
+          添加节点
+        </Button>
       </Space>
       <Table
         columns={columns}

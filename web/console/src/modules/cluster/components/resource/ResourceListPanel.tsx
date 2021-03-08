@@ -30,8 +30,7 @@ import { ResourceLogPanel } from './resourceTableOperation/ResourceLogPanel';
 import { ResourceTablePanel } from './resourceTableOperation/ResourceTablePanel';
 import { HPAPanel } from '../scale/hpa';
 import { CronHpaPanel } from '../scale/cronhpa';
-import { MasterAndEtcd } from './nodeManage/master-and-etcd';
-import { Spin } from 'antd';
+import { MasterAndEtcdListPanel } from './nodeManage/master-and-etcd-list-panel';
 
 const loadingElement: JSX.Element = (
   <div>
@@ -86,11 +85,7 @@ export class ResourceListPanel extends React.Component<ResourceListPanelProps, {
         break;
 
       case 'master-etcd':
-        content = (
-          <React.Suspense fallback={<Spin />}>
-            <MasterAndEtcd clusterName={cluster?.selection?.metadata?.name ?? ''} />
-          </React.Suspense>
-        );
+        content = <MasterAndEtcdListPanel clusterName={cluster?.selection?.metadata?.name ?? ''} />;
         headTitle = 'Master&Etcd列表';
         break;
 
