@@ -15,6 +15,7 @@ import zhCN from 'antd/lib/locale/zh_CN';
 import { ConfigProvider, Spin } from 'antd';
 import { TkeVersion } from '@/src/modules/common/components/tke-version';
 import { ConsoleModuleEnum } from '@config/platform';
+import 'core-js/features/promise/finally';
 
 const routerSea = seajs.require('router');
 
