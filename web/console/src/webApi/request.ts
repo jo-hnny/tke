@@ -2,6 +2,7 @@ import { changeForbiddentConfig } from '@/index.tke';
 import { Method } from '@helper';
 import Axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
+import { message } from 'antd';
 
 const instance = Axios.create({
   timeout: 10000
@@ -23,7 +24,11 @@ instance.interceptors.request.use(
 );
 
 instance.interceptors.response.use(
-  ({ data }) => data,
+  ({ data }) => {
+    console.log('response data check:', data);
+
+    return data;
+  },
   error => {
     console.error('response error:', error);
     if (!error.response) {
@@ -44,6 +49,8 @@ instance.interceptors.response.use(
         message: error.response.data.message
       });
     }
+
+    message.error(error?.response?.data?.message ?? '系统内部错误！');
 
     return Promise.reject(error);
   }

@@ -3,10 +3,11 @@ import { AntdLayout } from '@src/modules/common/layouts';
 import { Button, Space, Form, Input, InputNumber, List, Radio, Checkbox, Tooltip } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import validator from 'validator';
-import { addMasterNodes } from '@src/webApi/nodes';
+import { updateMasterNodes } from '@src/webApi/nodes';
 import { IMasterNode, CertType, IRequestMasterNode } from '@src/modules/cluster/models/MasterEtcd';
+import { router } from '@src/modules/cluster/router';
 
-export const AddMasterPage: React.FC = () => {
+export const AddMasterPage: React.FC<any> = ({ cluster }) => {
   const [masterAddedList, setMasterAddedList] = useState<IMasterNode[]>([
     {
       id: uuidv4(),
@@ -61,12 +62,27 @@ export const AddMasterPage: React.FC = () => {
   }
 
   async function perform() {
-    const finalData = masterAddedList.reduce<IRequestMasterNode[]>(
-      (nodes, { ipList, ...others }) => [...nodes, ipList.split(';').map(ip => ({ ip, ...others }))],
+    const machines = masterAddedList.reduce(
+      (machines, { ipList, username, port, certType, password, privateKey, privateKeyPassword }) => [
+        ...machines,
+        ...ipList.split(';').map(ip => ({
+          ip,
+          port,
+          username,
+          ...(certType === CertType.Password
+            ? { password: btoa(password) }
+            : { privateKey, privateKeyPassword: privateKeyPassword || undefined })
+        }))
+      ],
       []
     );
 
-    await addMasterNodes(finalData);
+    try {
+      await updateMasterNodes([...(cluster?.spec?.machines ?? []), ...machines], cluster?.metadata?.name ?? '');
+      router.navigate();
+    } catch (error) {
+      console.log('updateMasterNodes error:', error);
+    }
   }
 
   return (
@@ -75,11 +91,11 @@ export const AddMasterPage: React.FC = () => {
       footer={
         <Space>
           <Tooltip title={masterAddedList.some(({ isEdit }) => isEdit) ? '请先完成编辑项' : ''}>
-            <Button disabled={masterAddedList.some(({ isEdit }) => isEdit)} type="primary">
+            <Button disabled={masterAddedList.some(({ isEdit }) => isEdit)} type="primary" onClick={perform}>
               确认
             </Button>
           </Tooltip>
-          <Button>取消</Button>
+          <Button onClick={() => history.back()}>取消</Button>
         </Space>
       }
     >
@@ -166,8 +182,8 @@ export const AddMasterPage: React.FC = () => {
                     value={node.certType}
                     onChange={({ target }) => handleNodeChange(node.id, { certType: target.value })}
                   >
-                    <Radio.Button value="password">密码认证</Radio.Button>
-                    <Radio.Button value="key">密匙认证</Radio.Button>
+                    <Radio.Button value={CertType.Password}>密码认证</Radio.Button>
+                    <Radio.Button value={CertType.Key}>密匙认证</Radio.Button>
                   </Radio.Group>
                 </Form.Item>
 

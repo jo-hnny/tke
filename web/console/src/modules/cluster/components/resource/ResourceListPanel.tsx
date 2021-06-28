@@ -86,7 +86,7 @@ export class ResourceListPanel extends React.Component<ResourceListPanelProps, {
         break;
 
       case 'master-etcd':
-        content = <MasterAndEtcdListPanel clusterName={cluster?.selection?.metadata?.name ?? ''} />;
+        content = <MasterAndEtcdListPanel cluster={cluster.selection} />;
         headTitle = 'Master&Etcd列表';
         break;
 

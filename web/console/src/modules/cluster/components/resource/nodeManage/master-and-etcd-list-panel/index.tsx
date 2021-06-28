@@ -1,14 +1,38 @@
-import React from 'react';
-import { Button, Space, Table, Typography } from 'antd';
+import React, { useEffect } from 'react';
+import { Button, Space, Table, Typography, Popconfirm, Tooltip } from 'antd';
 import { useSetRecoilState, useRecoilValueLoadable } from 'recoil';
-import { masterAndEtcdListState, clusterNameState } from '@src/modules/cluster/recoil/atom/node';
+import {
+  masterAndEtcdListState,
+  clusterNameState,
+  originNodeListRequestIdState
+} from '@src/modules/cluster/recoil/atom/node';
 import { ColumnType } from 'antd/lib/table';
 import { IMasterAndEtcd } from '@src/modules/cluster/recoil/models/node';
 import { router } from '@src/modules/cluster/router';
+import { updateMasterNodes } from '@src/webApi/nodes';
 
-export const MasterAndEtcdListPanel: React.FC<{ clusterName: string }> = ({ clusterName }) => {
+export const MasterAndEtcdListPanel: React.FC<{ cluster: any }> = ({ cluster }) => {
+  const clusterName = cluster?.metadata?.name ?? '';
   const setClusterName = useSetRecoilState(clusterNameState);
   setClusterName(clusterName);
+  const refersh = useSetRecoilState(originNodeListRequestIdState(clusterName));
+
+  useEffect(() => {
+    refersh(id => id + 1);
+  }, []);
+
+  const master0Ip = cluster?.spec?.machines?.[0]?.ip ?? '';
+
+  async function deleteNode(ip) {
+    const machines = (cluster?.spec?.machines ?? []).filter(machine => machine?.ip !== ip);
+
+    try {
+      await updateMasterNodes(machines, clusterName);
+    } catch (error) {}
+
+    refersh(id => id + 1);
+  }
+
   const masterAndEtcdList = useRecoilValueLoadable(masterAndEtcdListState);
 
   const columns: ColumnType<IMasterAndEtcd>[] = [
@@ -53,14 +77,17 @@ export const MasterAndEtcdListPanel: React.FC<{ clusterName: string }> = ({ clus
 
     {
       title: '操作',
-      dataIndex: 'actions',
+      dataIndex: 'ip',
       align: 'center',
-      render() {
+      render(ip) {
         return (
-          <Space>
-            <Button type="link">移除</Button>
-            <Button type="link">更多</Button>
-          </Space>
+          <Popconfirm title="确定移除该节点吗？" onConfirm={() => deleteNode(ip)} disabled={ip === master0Ip}>
+            <Tooltip title={ip === master0Ip ? 'master0节点不能被移除！' : ''}>
+              <Button type="link" disabled={ip === master0Ip}>
+                移除
+              </Button>
+            </Tooltip>
+          </Popconfirm>
         );
       }
     }
@@ -69,7 +96,6 @@ export const MasterAndEtcdListPanel: React.FC<{ clusterName: string }> = ({ clus
   return (
     <React.Fragment>
       <Space>
-        <Button type="primary">监控</Button>
         <Button
           type="primary"
           onClick={() =>

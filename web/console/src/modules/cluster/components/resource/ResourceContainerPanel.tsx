@@ -16,6 +16,7 @@ import { ResourceListPanel } from './ResourceListPanel';
 import { HPAPanel } from '@src/modules/cluster/components/scale/hpa';
 import { CronHpaPanel } from '@src/modules/cluster/components/scale/cronhpa';
 import { AddMasterPage } from './nodeManage/add-master-page';
+import { cluster } from '@config/resource/k8sConfig';
 
 interface ResourceContainerPanelState {
   /** 共享锁 */
@@ -138,7 +139,7 @@ export class ResourceContainerPanel extends React.Component<RootProps, ResourceC
   }
 
   render() {
-    const { route } = this.props,
+    const { route, cluster } = this.props,
       urlParam = router.resolve(route);
     const { mode, resourceName } = urlParam;
     let content: JSX.Element;
@@ -172,7 +173,7 @@ export class ResourceContainerPanel extends React.Component<RootProps, ResourceC
           break;
 
         case 'add-master':
-          content = <AddMasterPage />;
+          content = <AddMasterPage cluster={cluster.selection} />;
           break;
 
         default:
