@@ -4,7 +4,7 @@ import { Button, Space, Form, Input, InputNumber, List, Radio, Checkbox, Tooltip
 import { v4 as uuidv4 } from 'uuid';
 import validator from 'validator';
 import { updateMasterNodes } from '@src/webApi/nodes';
-import { IMasterNode, CertType, IRequestMasterNode } from '@src/modules/cluster/models/MasterEtcd';
+import { IMasterNode, CertType } from '@src/modules/cluster/models/MasterEtcd';
 import { router } from '@src/modules/cluster/router';
 
 export const AddMasterPage: React.FC<any> = ({ cluster }) => {
@@ -71,7 +71,10 @@ export const AddMasterPage: React.FC<any> = ({ cluster }) => {
           username,
           ...(certType === CertType.Password
             ? { password: btoa(password) }
-            : { privateKey, privateKeyPassword: privateKeyPassword || undefined })
+            : {
+                privateKey: btoa(privateKey),
+                privateKeyPassword: privateKeyPassword ? btoa(privateKeyPassword) : undefined
+              })
         }))
       ],
       []
@@ -88,6 +91,7 @@ export const AddMasterPage: React.FC<any> = ({ cluster }) => {
   return (
     <AntdLayout
       title="添加Master节点"
+      goBack={() => router.navigate({ sub: 'sub', mode: 'list', type: 'nodeManange', resourceName: 'master-etcd' })}
       footer={
         <Space>
           <Tooltip title={masterAddedList.some(({ isEdit }) => isEdit) ? '请先完成编辑项' : ''}>
@@ -219,17 +223,7 @@ export const AddMasterPage: React.FC<any> = ({ cluster }) => {
                   <Input.TextArea />
                 </Form.Item>
 
-                <Form.Item
-                  label="私钥密码"
-                  hidden={node.certType === CertType.Password}
-                  name="privateKeyPassword"
-                  rules={[
-                    {
-                      required: node.certType === CertType.Key,
-                      message: '私匙密码必填！'
-                    }
-                  ]}
-                >
+                <Form.Item label="私钥密码" hidden={node.certType === CertType.Password} name="privateKeyPassword">
                   <Input.TextArea />
                 </Form.Item>
 

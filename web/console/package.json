@@ -22,7 +22,10 @@
     "pre-commit": "lint-staged"
   },
   "lint-staged": {
-    "./**/*.{ts,tsx,js,jsx}": "eslint"
+    "./**/*.{ts,tsx,js,jsx}": [
+      "eslint",
+      "prettier --write"
+    ]
   },
   "license": "Apache-2.0",
   "dependencies": {
